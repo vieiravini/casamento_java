@@ -1,2 +1,2 @@
-# casamento_java
+# Casamento Java
  Project in java to manage a party
