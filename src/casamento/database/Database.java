@@ -4,100 +4,85 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Scanner;
+import java.util.ArrayList;
+
 
 
 public class Database {
 
-	Connection connection = null;
-	public Database() {
+	
+	public static Connection getConnection() {
 		
-		final String DATABASE_URL = "jdbc:mysql://localhost:3306/casamentoDB?useSSL=false";
+		final String DATABASE_URL = "jdbc:mysql://localhost:3306/casamento?useSSL=false";
 		System.out.println("Conectando com o banco de dados...");
 		
 		try {
+			Connection connection = null;
 			connection = DriverManager.getConnection(DATABASE_URL, "root", "root" );
 			System.out.println("Conectado com sucesso ao banco de dados!");
-		}catch(SQLException ex) {
-			System.out.println("SQLException: " + ex.getMessage());
-	          System.out.println("SQLState: " + ex.getSQLState());
-	          System.out.println("VendorError: " + ex.getErrorCode());
-	          ex.printStackTrace();
+			return connection;
+		}catch(Exception e) {
+			System.out.println(e);
 		};
+		return null;
 		
 		
 		
 	};
 	
 	
-	public void list() {
-		Statement statement = null; 
-	      ResultSet resultSet = null; 
-	      Scanner input = new Scanner(System.in);
-	      try
-	      {
-
-	         
-	         statement = connection.createStatement();
-
-	        
-	         resultSet = statement.executeQuery("SELECT * FROM convidado");
-
-	         
-	         ResultSetMetaData metaData = resultSet.getMetaData();
-	         int numberOfColumns = metaData.getColumnCount();
-	         System.out.println( "Convidados:\n" );
-	         
-	         int opcao = 10;
-
-	         for ( int i = 1; i <= numberOfColumns; i++ )
-	            System.out.printf( "%-8s\t", metaData.getColumnName( i ) );
-	         System.out.println();
-
-	         while ( resultSet.next() ) {
-	            for ( int i = 1; i <= numberOfColumns; i++ )
-	               System.out.printf( "%-8s\t", resultSet.getObject( i ) );
-	            System.out.println();
-	         } 
-	         
-	         do {
-	        	 System.out.println("*******************************");
-	        	 System.out.println("Digite 1 para sair. \n");
-	        	 System.out.println("Digite 2 para cadastrar outro convidado.\n");
-	        	 opcao = input.nextInt();
-	         
-	         
-	         if(opcao == 2) {
-	        	 
-	         }
-	         
-	         
-	         
-	         }while(opcao != 1);
-	         System.out.println("****************************************");
-	        
-	        	 
-	         
-	      }  
-	      catch ( SQLException ex )
-	      {
-	       
-	          System.out.println("SQLException: " + ex.getMessage());
-	          System.out.println("SQLState: " + ex.getSQLState());
-	          System.out.println("VendorError: " + ex.getErrorCode());
-	          ex.printStackTrace();
-	      } 
-	};
+	public static ArrayList<String> list() {
+		try {
+			Connection connection = getConnection();
+			PreparedStatement statment = connection.prepareStatement("SELECT * FROM convidado");
+			
+			ResultSet result = statment.executeQuery();
+			
+			ArrayList<String> array = new ArrayList<String>();
+			
+			while(result.next()) {
+				System.out.println(result.getString("nome"));
+				array.add(result.getString("nome"));
+			}
+			System.out.println("All records have been selected");
+			return array;
+			
+		}catch(Exception e){
+			System.out.println(e);
+		}
+		return null;
+		
+	}
 	
 	
 	
-	public void register() {
+	public static void postC(String nome, String familia, String tipo_c, String padrinho, String madrinha, int mesa) {
+		
+		try {
+			Connection connection = getConnection();
+			PreparedStatement posted = connection.prepareStatement(
+					"INSERT INTO convidado(nome, familia, tipo_convidado, padrinho, madrinha, mesa) "
+					+ "VALUES ('"+nome+"','"+familia+"' , '"+tipo_c+"', '"+padrinho+"' , '"+madrinha+"','"+mesa+"'  )");
+			posted.executeUpdate();
+		}catch(Exception e) {System.out.println(e);}
+		finally {
+			System.out.println("Convidado salvo.");
+		}
 		
 		
+	}
+	
+	public static void postP(String descricao, String local_compra) {
 		
+		try {
+			Connection connection = getConnection();
+			PreparedStatement posted = connection.prepareStatement(
+					"INSET INTO presente(descicao, local_compra) VALUES ('"+descricao+"', '"+local_compra+"'");
+			posted.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println(e);
+		}
 	}
 	
 	
